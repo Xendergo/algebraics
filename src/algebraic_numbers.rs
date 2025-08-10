@@ -1245,7 +1245,13 @@ impl Signed for RealAlgebraicNumber {
 
 impl PartialEq for RealAlgebraicNumber {
     fn eq(&self, rhs: &RealAlgebraicNumber) -> bool {
-        (self - rhs).is_zero()
+        if self.interval().lower_bound() > rhs.interval().upper_bound()
+            || self.interval().upper_bound() < rhs.interval().lower_bound()
+        {
+            false
+        } else {
+            (self - rhs).is_zero()
+        }
     }
 }
 
@@ -1259,7 +1265,13 @@ impl PartialOrd for RealAlgebraicNumber {
 
 impl Ord for RealAlgebraicNumber {
     fn cmp(&self, rhs: &RealAlgebraicNumber) -> Ordering {
-        (self - rhs).cmp_with_zero()
+        if self.interval().upper_bound() < rhs.interval().lower_bound() {
+            Ordering::Less
+        } else if self.interval().lower_bound() > rhs.interval().upper_bound() {
+            Ordering::Greater
+        } else {
+            (self - rhs).cmp_with_zero()
+        }
     }
 }
 
